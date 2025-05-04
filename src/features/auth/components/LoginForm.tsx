@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { loginUser } from "../services/authService";
+import axios from "axios";
+import { FaEyeSlash, FaEye } from "react-icons/fa";
 
 const LoginForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -11,10 +14,26 @@ const LoginForm: React.FC = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(prev => !prev);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Logging in with:", formData);
-        // TODO: connect with login API
+        try {
+            const res = await loginUser(formData);
+            console.log("Logged in!", res);
+            // TODO: Save token or user data, navigate
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.error("Axios error:", err.response?.data);
+            } else {
+                console.error("Unexpected error:", err);
+            }
+        }
+
     };
 
     return (
@@ -35,16 +54,23 @@ const LoginForm: React.FC = () => {
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            className="mt-1 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                        />
+                        <span
+                            onClick={togglePasswordVisibility}
+                            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 cursor-pointer"
+                        >
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
+                    </div>
                 </div>
-
                 <div className="text-sm text-right">
                     <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
                         Forgot password?

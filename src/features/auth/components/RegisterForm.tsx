@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { registerUser } from "../services/authService";
 
 const RegisterForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -16,10 +17,21 @@ const RegisterForm: React.FC = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Submitting:", formData);
-        // TODO: send data to backend
+        try {
+            const res = await registerUser(formData);
+            console.log("Registered!", res);
+            // TODO: Navigate to login or dashboard
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                const errorMessage = (err as { response?: { data?: string } })?.response?.data || err.message;
+                console.error("Registration error:", errorMessage);
+            } else {
+                console.error("An unknown error occurred during registration.");
+            }
+            // TODO: Show error to user
+        }
     };
 
     return (
