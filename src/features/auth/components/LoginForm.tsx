@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
 import axios from "axios";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 
 const LoginForm: React.FC = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -25,6 +26,9 @@ const LoginForm: React.FC = () => {
         try {
             const res = await loginUser(formData);
             console.log("Logged in!", res);
+            localStorage.setItem("token", res.data.token);
+            navigate("/dashboard"); // Redirect to dashboard or another page
+             // Assuming the token is in res.data.token
             // TODO: Save token or user data, navigate
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
